@@ -2,21 +2,21 @@ import string
 import re
 import pandas as pd
 import nltk
+from nltk import WordNetLemmatizer, pos_tag
 from nltk.stem import PorterStemmer
-from nltk.corpus import stopwords
+from nltk.corpus import stopwords, wordnet
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import classification_report, accuracy_score
-
+nltk.download('wordnet')
 df = pd.read_csv("sampled_data.csv")
 df = df[['Id', 'Score', 'Text']]
-
 
 
 ##Converting to Lowercase
 df['Clean Text'] = df['Text'].str.lower()
 ##pd.set_option('display.max_columns', None)
 ##pd.set_option('display.max_colwidth', None)
-##print(df.head(5))
+#print(df.head(5))
 
 ##Removing Punctuations
 def rem_punctuation(text):
@@ -30,7 +30,7 @@ stopwords.words('english')
 default_stopwords = set(stopwords.words('english'))
 sentiment_words = {"not", "no", "but", "yet", "cannot", "won't", "shouldn't", "couldn't"}
 custom_stopwords = default_stopwords - sentiment_words
-##print("Custom Stopwords List:", custom_stopwords)
+#print("Custom Stopwords List:", custom_stopwords)
 
 
 def rem_stopwords(text):
@@ -44,7 +44,7 @@ def rem_SpecialChars(text):
     return text
 df['Clean Text'] = df['Clean Text'].apply(lambda x: rem_SpecialChars(x))
 #print(df.head(15))
-
+'''
 ## Next Step: Stemming / Lemmatization
 ps = PorterStemmer()
 
@@ -52,7 +52,7 @@ def stemmer(text):
     return " ".join([ps.stem(word) for word in text.split()])
 
 df['Stemmed Text'] = df['Clean Text'].apply(lambda x: stemmer(x))
-#print(df.head(15))
+print(df.head(15))
 
 ################### Applying Logistical regression #########################
 X = df['Stemmed Text']  # Input features (text)
@@ -79,7 +79,16 @@ model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 
 # Evaluate the model
-print("Accuracy:", accuracy_score(y_test, y_pred))
-print("Classification Report:\n", classification_report(y_test, y_pred, zero_division=0))
+##print("Accuracy:", accuracy_score(y_test, y_pred))
+##print("Classification Report:\n", classification_report(y_test, y_pred, zero_division=0))
+'''
+lemmatizer = WordNetLemmatizer()
+wordnet_map = {"N":wordnet.NOUN, "V":wordnet.VERB, "J":wordnet.ADJ, "R":wordnet.ADV}
+
+def lemmatize_words(text):
+    pos_text = pos_tag(text.split())
+    return " ".join([lemmatizer.lemmatize(word, wordnet_map.get(pos[0], wordnet.NOUN)) for word, pos in pos_text])
 
 
+df['lemmatized_text']= df['Clean Text'].apply(lambda x: lemmatize_words(x))
+print(df.head(10))
