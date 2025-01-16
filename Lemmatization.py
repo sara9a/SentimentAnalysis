@@ -7,7 +7,7 @@ from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords, wordnet
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import classification_report, accuracy_score
-nltk.download('wordnet')
+
 df = pd.read_csv("sampled_data.csv")
 df = df[['Id', 'Score', 'Text']]
 
@@ -52,5 +52,5 @@ def lemmatize_words(text):
     return " ".join([lemmatizer.lemmatize(word, wordnet_map.get(pos[0], wordnet.NOUN)) for word, pos in pos_text])
 
 
-df['lemmatized_text']= df['Clean Text'].apply(lambda x: lemmatize_words(x))
+df['Lemmatized_text']= df['Clean Text'].apply(lambda x: lemmatize_words(x))
 print(df.head(10))
